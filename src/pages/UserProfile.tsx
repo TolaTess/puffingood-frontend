@@ -140,7 +140,7 @@ const UserProfile = () => {
         />
         <TextField
           fullWidth
-          label="State"
+          label="Louth"
           value={formData.state}
           onChange={(e) => setFormData({ ...formData, state: e.target.value })}
           margin="normal"
@@ -148,7 +148,7 @@ const UserProfile = () => {
         />
         <TextField
           fullWidth
-          label="ZIP Code"
+          label="Eircode"
           value={formData.zipCode}
           onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
           margin="normal"

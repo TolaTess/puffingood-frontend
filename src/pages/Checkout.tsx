@@ -226,7 +226,7 @@ const Checkout = () => {
         <TextField
           required
           fullWidth
-          label="State"
+          label="Louth"
           name="state"
           value={deliveryDetails.state}
           onChange={handleDeliveryDetailsChange}
@@ -236,7 +236,7 @@ const Checkout = () => {
         <TextField
           required
           fullWidth
-          label="ZIP Code"
+          label="Eircode"
           name="zipCode"
           value={deliveryDetails.zipCode}
           onChange={handleDeliveryDetailsChange}
