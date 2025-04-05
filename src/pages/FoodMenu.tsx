@@ -16,11 +16,12 @@ import {
   Chip,
   Stack,
   CircularProgress,
+  Paper,
 } from '@mui/material';
 import { Search as SearchIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { addItem } from '../store/slices/cartSlice';
-import { useFoods } from '../hooks/useFirestore';
+import { useFoods, useAdminSettings } from '../hooks/useFirestore';
 import { Food } from '../types';
 
 // Import images
@@ -32,6 +33,7 @@ import halfHalfImg from '../assets/puff/half-half.jpg';
 const FoodMenu = () => {
   const dispatch = useDispatch();
   const { foods, loading, error } = useFoods();
+  const { settings } = useAdminSettings();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
@@ -114,6 +116,26 @@ const FoodMenu = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Our Menu
         </Typography>
+
+        {settings?.isDiscount && (
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 2, 
+              mb: 3, 
+              bgcolor: 'success.light',
+              color: 'success.contrastText',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="h6" align="center">
+              🎉 Special Offer: {settings.discountPercentage}% OFF with code: {settings.discountCode} 🎉
+            </Typography>
+          </Paper>
+        )}
+
         <Grid container spacing={2} sx={{ mb: 3 }}>
           {/* <Grid item xs={12} md={6}>
             <TextField

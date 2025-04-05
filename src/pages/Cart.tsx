@@ -276,6 +276,46 @@ const Cart = () => {
               </CardContent>
             </Card>
           ))}
+          
+          {settings?.isDiscount && (
+            <Alert 
+              severity="info" 
+              sx={{ 
+                mb: 2,
+                backgroundColor: '#e3f2fd',
+                '& .MuiAlert-icon': {
+                  color: '#1976d2'
+                }
+              }}
+            >
+              <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'medium' }}>
+                Special Offer Available!
+              </Typography>
+              <Typography variant="body2">
+                Use code <strong>{settings.discountCode}</strong> to get {settings.discountPercentage}% off your order
+              </Typography>
+            </Alert>
+          )}
+
+          {settings?.isFamilyDiscount && (
+            <Alert 
+              severity="info" 
+              sx={{ 
+                mb: 2,
+                backgroundColor: '#e8f5e9',
+                '& .MuiAlert-icon': {
+                  color: '#2e7d32'
+                }
+              }}
+            >
+              <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'medium' }}>
+                Family Discount Available!
+              </Typography>
+              <Typography variant="body2">
+                Use code <strong>{settings.familyDiscountCode}</strong> to get {settings.familyDiscountPercentage}% off your order
+              </Typography>
+            </Alert>
+          )}
         </Grid>
 
         <Grid item xs={12} md={4}>

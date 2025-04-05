@@ -57,7 +57,7 @@ const Home = () => {
         <Paper
           elevation={0}
           sx={{
-            bgcolor: 'secondary.main',
+            bgcolor: 'success.light',
             color: 'white',
             py: 1,
             textAlign: 'center',
