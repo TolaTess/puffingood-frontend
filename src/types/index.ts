@@ -54,6 +54,9 @@ export interface AdminSettings {
   isDiscount: boolean;
   discountCode: string;
   discountPercentage: number;
+  isFamilyDiscount: boolean;
+  familyDiscountCode: string;
+  familyDiscountPercentage: number;
   galwayFee: number;
   outsideGalwayFee: number;
   galwayDeliveryTime: number;

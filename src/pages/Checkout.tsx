@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
@@ -25,8 +25,18 @@ import { useAdminSettings } from '../hooks/useFirestore';
 
 const steps = ['Delivery Details', 'Review Order', 'Payment'];
 
+interface LocationState {
+  appliedDiscount: {
+    code: string;
+    percentage: number;
+    type: 'regular' | 'family' | null;
+  } | null;
+}
+
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { appliedDiscount } = (location.state as LocationState) || { appliedDiscount: null };
   const dispatch = useDispatch();
   const { items, total } = useSelector((state: RootState) => state.cart);
   const { user: authUser } = useSelector((state: RootState) => state.auth);
@@ -139,8 +149,8 @@ const Checkout = () => {
   };
 
   const calculateDiscount = (subtotal: number) => {
-    if (settings?.isDiscount && settings.discountPercentage) {
-      return (subtotal * settings.discountPercentage) / 100;
+    if (appliedDiscount?.percentage) {
+      return (subtotal * appliedDiscount.percentage) / 100;
     }
     return 0;
   };
@@ -169,8 +179,9 @@ const Checkout = () => {
         })),
         subtotal: subtotal,
         discount: discount,
-        discountCode: settings?.isDiscount ? settings.discountCode : null,
-        discountPercentage: settings?.isDiscount ? settings.discountPercentage : null,
+        discountCode: appliedDiscount?.code || null,
+        discountPercentage: appliedDiscount?.percentage || null,
+        discountType: appliedDiscount?.type || null,
         totalAmount: finalTotal,
         city: deliveryDetails.city,
         deliveryFee: deliveryFee,
@@ -300,10 +311,10 @@ const Checkout = () => {
           <Typography>Subtotal</Typography>
           <Typography>€{subtotal.toFixed(2)}</Typography>
         </Box>
-        {settings?.isDiscount && (
+        {appliedDiscount && (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography color="success.main">
-              Discount ({settings.discountPercentage}% off - {settings.discountCode})
+              {appliedDiscount.type === 'family' ? 'Family Discount' : 'Discount'} ({appliedDiscount.percentage}% off)
             </Typography>
             <Typography color="success.main">
               -€{discount.toFixed(2)}

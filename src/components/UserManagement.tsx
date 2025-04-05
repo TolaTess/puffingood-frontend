@@ -25,6 +25,7 @@ import {
   Tabs,
   Tab,
   InputAdornment,
+  Snackbar,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { firebaseService } from '../services/firebase';
@@ -48,6 +49,11 @@ const UserManagement = () => {
     outsideGalwayFee: 0,
     galwayDeliveryTime: 0,
     outsideGalwayDeliveryTime: 0,
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
   });
 
   useEffect(() => {
@@ -105,9 +111,24 @@ const UserManagement = () => {
     try {
       await firebaseService.updateAdminSettings(formData);
       setError(null);
+      setSnackbar({
+        open: true,
+        message: 'Settings saved successfully',
+        severity: 'success'
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update settings');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update settings';
+      setError(errorMessage);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   if (loading || settingsLoading) {
@@ -195,7 +216,7 @@ const UserManagement = () => {
                   />
                   <TextField
                     fullWidth
-                    label="Galway Delivery Time (minutes)"
+                        label="Galway Delivery Time (hours)"
                     name="galwayDeliveryTime"
                     type="number"
                     value={formData.galwayDeliveryTime}
@@ -229,7 +250,7 @@ const UserManagement = () => {
                   />
                   <TextField
                     fullWidth
-                    label="Outside Galway Delivery Time (minutes)"
+                    label="Outside Galway Delivery Time (hours)"
                     name="outsideGalwayDeliveryTime"
                     type="number"
                     value={formData.outsideGalwayDeliveryTime}
@@ -285,6 +306,48 @@ const UserManagement = () => {
             </Grid>
           </Grid>
 
+          <Typography variant="h6" gutterBottom>Family Discount Settings</Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.isFamilyDiscount}
+                    onChange={handleSettingsChange}
+                    name="isFamilyDiscount"
+                  />
+                }
+                label="Enable Family Discount"
+              />
+              {formData.isFamilyDiscount && (
+                <>
+                  <TextField
+                    fullWidth
+                    label="Family Discount Code"
+                    name="familyDiscountCode"
+                    value={formData.familyDiscountCode}
+                    onChange={handleSettingsChange}
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Family Discount Percentage"
+                    name="familyDiscountPercentage"
+                    type="number"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                      inputProps: { min: 0, max: 100 }
+                    }}
+                    value={formData.familyDiscountPercentage || 0}
+                    onChange={handleSettingsChange}
+                    margin="normal"
+                    helperText="Enter a value between 0 and 100"
+                  />
+                </>
+              )}
+            </Grid>
+          </Grid>
+
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
             <Button variant="contained" onClick={handleSaveSettings}>
               Save Settings
@@ -317,6 +380,17 @@ const UserManagement = () => {
           <Button onClick={handleCloseDialog}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -35,6 +35,13 @@ const Cart = () => {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const { settings } = useAdminSettings();
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    percentage: number;
+    type: 'regular' | 'family' | null;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -96,14 +103,62 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (items.length > 0) {
-      navigate('/checkout');
+      navigate('/checkout', {
+        state: {
+          appliedDiscount: appliedDiscount ? {
+            code: appliedDiscount.code,
+            percentage: appliedDiscount.percentage,
+            type: appliedDiscount.type
+          } : null
+        }
+      });
     }
+  };
+
+  const handleApplyDiscount = () => {
+    if (!discountCode.trim()) {
+      setDiscountError('Please enter a discount code');
+      return;
+    }
+
+    if (!settings) {
+      setDiscountError('Unable to validate discount code');
+      return;
+    }
+
+    // Check regular discount
+    if (settings.isDiscount && settings.discountCode && 
+        discountCode.trim().toLowerCase() === settings.discountCode.toLowerCase()) {
+      setAppliedDiscount({
+        code: settings.discountCode,
+        percentage: settings.discountPercentage || 0,
+        type: 'regular'
+      });
+      setDiscountError(null);
+      return;
+    }
+
+    // Check family discount
+    if (settings.isFamilyDiscount && settings.familyDiscountCode && 
+        discountCode.trim().toLowerCase() === settings.familyDiscountCode.toLowerCase()) {
+      setAppliedDiscount({
+        code: settings.familyDiscountCode,
+        percentage: settings.familyDiscountPercentage || 0,
+        type: 'family'
+      });
+      setDiscountError(null);
+      return;
+    }
+
+    // No valid discount found
+    setDiscountError('Invalid discount code');
+    setAppliedDiscount(null);
   };
 
   // Calculate discount amount
   const calculateDiscount = (subtotal: number) => {
-    if (settings?.isDiscount && settings.discountPercentage) {
-      return (subtotal * settings.discountPercentage) / 100;
+    if (appliedDiscount) {
+      return (subtotal * appliedDiscount.percentage) / 100;
     }
     return 0;
   };
@@ -239,16 +294,39 @@ const Cart = () => {
                   <Typography>Subtotal</Typography>
                   <Typography>€{subtotal.toFixed(2)}</Typography>
                 </Box>
-                {settings?.isDiscount && (
+                
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                    <TextField
+                      size="small"
+                      label="Discount Code"
+                      value={discountCode}
+                      onChange={(e) => setDiscountCode(e.target.value)}
+                      error={!!discountError}
+                      helperText={discountError}
+                      sx={{ flex: 1 }}
+                    />
+                    <Button
+                      variant="outlined"
+                      onClick={handleApplyDiscount}
+                      sx={{ minWidth: '100px' }}
+                    >
+                      Apply
+                    </Button>
+                  </Box>
+                </Box>
+
+                {appliedDiscount && (
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography color="success.main">
-                      Discount ({settings.discountPercentage}% off)
+                      {appliedDiscount.type === 'family' ? 'Family Discount' : 'Discount'} ({appliedDiscount.percentage}% off)
                     </Typography>
                     <Typography color="success.main">
                       -€{discount.toFixed(2)}
                     </Typography>
                   </Box>
                 )}
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography>Delivery Fee</Typography>
                   <Typography>€{deliveryFee.toFixed(2)}</Typography>
