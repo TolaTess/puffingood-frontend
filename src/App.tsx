@@ -40,9 +40,7 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
     ],
   },
-], {
-  basename: '/puffingood-frontend'
-});
+]);
 
 function App() {
   return (
