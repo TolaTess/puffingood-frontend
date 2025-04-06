@@ -161,7 +161,7 @@ const Checkout = () => {
   const discount = calculateDiscount(subtotal);
   const finalTotal = subtotal + deliveryFee - discount;
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentIntentId?: string) => {
     try {
       if (!user) {
         setError('Please sign in to place an order');
@@ -186,7 +186,8 @@ const Checkout = () => {
         city: deliveryDetails.city,
         deliveryFee: deliveryFee,
         status: 'pending' as const,
-        createdAt: new Date()
+        createdAt: new Date(),
+        paymentIntentId: paymentIntentId
       };
 
       await firebaseService.createOrder(orderData);

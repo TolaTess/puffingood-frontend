@@ -16,11 +16,11 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface StripePaymentProps {
   amount: number;
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId?: string) => void;
   onError: (error: string) => void;
 }
 
-const PaymentForm = ({ onSuccess, onError }: { onSuccess: () => void; onError: (error: string) => void }) => {
+const PaymentForm = ({ onSuccess, onError }: { onSuccess: (paymentIntentId?: string) => void; onError: (error: string) => void }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ const PaymentForm = ({ onSuccess, onError }: { onSuccess: () => void; onError: (
 
       switch (paymentIntent.status) {
         case 'succeeded':
-          onSuccess();
+          onSuccess(paymentIntent.id);
           break;
         case 'processing':
           onError('Your payment is processing.');
@@ -75,7 +75,7 @@ const PaymentForm = ({ onSuccess, onError }: { onSuccess: () => void; onError: (
       if (error) {
         onError(error.message || 'Payment failed');
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onSuccess();
+        onSuccess(paymentIntent.id);
         navigate('/orders');
       }
     } catch (err) {

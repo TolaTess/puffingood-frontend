@@ -13,6 +13,8 @@ import {
   Button,
   Collapse,
   IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -24,10 +26,32 @@ import { ExpandMore as ExpandMoreIcon, ExpandLess as ExpandLessIcon } from '@mui
 const Orders = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<{ [key: string]: boolean }>({});
+  const [timeFilter, setTimeFilter] = useState<'7days' | '30days' | 'all'>('7days');
+
+  const filterOrders = (orders: Order[], filter: '7days' | '30days' | 'all') => {
+    const now = new Date();
+    return orders.filter(order => {
+      const orderDate = order.createdAt instanceof Timestamp 
+        ? order.createdAt.toDate() 
+        : new Date(order.createdAt);
+      
+      const diffInDays = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24);
+      
+      switch (filter) {
+        case '7days':
+          return diffInDays <= 7;
+        case '30days':
+          return diffInDays <= 30;
+        default:
+          return true;
+      }
+    });
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -37,6 +61,7 @@ const Orders = () => {
         setLoading(true);
         const ordersData = await firebaseService.getUserOrders(user.id);
         setOrders(ordersData);
+        setFilteredOrders(filterOrders(ordersData, timeFilter));
       } catch (err) {
         setError('Failed to load orders. Please try again later.');
       } finally {
@@ -45,7 +70,17 @@ const Orders = () => {
     };
 
     fetchOrders();
-  }, [user]);
+  }, [user, timeFilter]);
+
+  useEffect(() => {
+    setFilteredOrders(filterOrders(orders, timeFilter));
+  }, [timeFilter, orders]);
+
+  const handleTimeFilterChange = (event: React.MouseEvent<HTMLElement>, newFilter: '7days' | '30days' | 'all') => {
+    if (newFilter !== null) {
+      setTimeFilter(newFilter);
+    }
+  };
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
@@ -95,10 +130,14 @@ const Orders = () => {
   const handleCancelOrder = async (orderId: string) => {
     try {
       setCancellingOrder(orderId);
-      await firebaseService.updateOrderStatus(orderId, 'cancelled');
+      await firebaseService.refundOrder(orderId);
       // Update local state
       setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: 'cancelled' } : order
+        order.id === orderId ? { 
+          ...order, 
+          status: 'cancelled',
+          refundStatus: 'succeeded' 
+        } : order
       ));
     } catch (err) {
       setError('Failed to cancel order. Please try again.');
@@ -183,8 +222,28 @@ const Orders = () => {
         Order History
       </Typography>
 
+      <Box sx={{ mb: 3 }}>
+        <ToggleButtonGroup
+          value={timeFilter}
+          exclusive
+          onChange={handleTimeFilterChange}
+          aria-label="time filter"
+          size="small"
+        >
+          <ToggleButton value="7days" aria-label="last 7 days">
+            Last 7 Days
+          </ToggleButton>
+          <ToggleButton value="30days" aria-label="last 30 days">
+            Last 30 Days
+          </ToggleButton>
+          <ToggleButton value="all" aria-label="all orders">
+            All Orders
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
       <Grid container spacing={3}>
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <Grid item xs={12} key={order.id}>
             <Card>
               <CardContent>

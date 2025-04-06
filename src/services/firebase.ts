@@ -389,6 +389,52 @@ class FirebaseService {
       throw error;
     }
   }
+
+  async refundOrder(orderId: string): Promise<void> {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      const orderDoc = await getDoc(orderRef);
+      
+      if (!orderDoc.exists()) {
+        throw new Error('Order not found');
+      }
+
+      const order = orderDoc.data() as Order;
+      
+      if (!order.paymentIntentId) {
+        throw new Error('No payment information found for this order');
+      }
+
+      // Call backend to process refund
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/refund-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentIntentId: order.paymentIntentId,
+          orderId: orderId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process refund');
+      }
+
+      const { refundId } = await response.json();
+
+      // Update order with refund information
+      await updateDoc(orderRef, {
+        status: 'cancelled',
+        refundId: refundId,
+        refundStatus: 'succeeded',
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('Error refunding order:', error);
+      throw error;
+    }
+  }
 }
 
 export const firebaseService = new FirebaseService(); 

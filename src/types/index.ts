@@ -37,6 +37,9 @@ export interface Order {
   trackingNumber?: string;
   city: string;
   deliveryFee: number;
+  paymentIntentId?: string;
+  refundId?: string;
+  refundStatus?: 'pending' | 'succeeded' | 'failed';
 }
 
 export interface OrderItem {
