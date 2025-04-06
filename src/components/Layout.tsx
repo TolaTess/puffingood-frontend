@@ -32,6 +32,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { logout } from '../store/slices/authSlice';
+import CookieConsent from './CookieConsent';
 
 // Import images
 import logoImg from '../assets/logo/logo_black2.png';
@@ -298,9 +299,14 @@ const Layout = () => {
             <RouterLink to="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>
               Terms and Conditions
             </RouterLink>
+            {' | '}
+            <RouterLink to="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Privacy Policy
+            </RouterLink>
           </Typography>
         </Container>
       </Box>
+      <CookieConsent />
     </Box>
   );
 };

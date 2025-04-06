@@ -335,6 +335,11 @@ const Orders = () => {
                   <Typography variant="body2" color="text.secondary">
                     Status: {order.status}
                   </Typography>
+                  {order.status === 'cancelled' && (
+                    <Typography variant="body2" color="info.main" sx={{ mt: 1 }}>
+                      Your refund will be processed within 5-10 business days.
+                    </Typography>
+                  )}
                   <Typography variant="body2" color="text.secondary">
                     City: {order.city}
                   </Typography>

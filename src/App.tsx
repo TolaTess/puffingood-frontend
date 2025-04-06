@@ -11,6 +11,7 @@ import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
 import UserProfile from './pages/UserProfile';
 import TermsAndConditions from './pages/TermsAndConditions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ThemeProvider, CssBaseline } from '@mui/material';
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
       { path: 'orders', element: <Orders /> },
       { path: 'profile', element: <UserProfile /> },
       { path: 'terms', element: <TermsAndConditions /> },
+      { path: 'privacy-policy', element: <PrivacyPolicy /> },
     ],
   },
   {

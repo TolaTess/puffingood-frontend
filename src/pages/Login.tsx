@@ -71,6 +71,13 @@ const Login = () => {
     dispatch(loginStart());
 
     try {
+      // Save email to localStorage if remember me is checked
+      if (rememberMe) {
+        localStorage.setItem(STORAGE_KEY, formData.email);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+
       const firebaseUser = await signInWithEmail(formData.email, formData.password);
       const userData = await firebaseService.getUserProfile(firebaseUser.uid);
       
@@ -78,15 +85,36 @@ const Login = () => {
         dispatch(loginSuccess({
           id: firebaseUser.uid,
           email: firebaseUser.email!,
-          isAdmin: userData.isAdmin,
-          isMarketing: userData.isMarketing,
+          name: userData.name || '',
+          phone: userData.phone || '',
+          address: userData.address || '',
+          city: userData.city || '',
+          state: userData.state || '',
+          zipCode: userData.zipCode || '',
+          isAdmin: userData.isAdmin || false,
+          isMarketing: userData.isMarketing || false,
+          createdAt: userData.createdAt || new Date(),
+          updatedAt: userData.updatedAt || new Date(),
         }));
         navigate('/');
       } else {
         throw new Error('User data not found');
       }
     } catch (err) {
-      dispatch(loginFailure(err instanceof Error ? err.message : 'Login failed'));
+      let errorMessage = 'Login failed';
+      if (err instanceof Error) {
+        // Provide more specific error messages
+        if (err.message.includes('auth/wrong-password')) {
+          errorMessage = 'Incorrect password';
+        } else if (err.message.includes('auth/user-not-found')) {
+          errorMessage = 'No account found with this email';
+        } else if (err.message.includes('auth/invalid-email')) {
+          errorMessage = 'Invalid email format';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      dispatch(loginFailure(errorMessage));
     }
   };
 
@@ -100,8 +128,16 @@ const Login = () => {
         dispatch(loginSuccess({
           id: firebaseUser.uid,
           email: firebaseUser.email!,
-          isAdmin: userData.isAdmin,
-          isMarketing: userData.isMarketing,
+          name: userData.name || '',
+          phone: userData.phone || '',
+          address: userData.address || '',
+          city: userData.city || '',
+          state: userData.state || '',
+          zipCode: userData.zipCode || '',
+          isAdmin: userData.isAdmin || false,
+          isMarketing: userData.isMarketing || false,
+          createdAt: userData.createdAt || new Date(),
+          updatedAt: userData.updatedAt || new Date(),
         }));
         navigate('/');
       } else {
