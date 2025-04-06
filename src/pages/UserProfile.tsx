@@ -28,6 +28,7 @@ const UserProfile = () => {
     city: '',
     state: '',
     zipCode: '',
+    country: 'Ireland',
   });
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const UserProfile = () => {
               city: userData.city || '',
               state: userData.state || '',
               zipCode: userData.zipCode || '',
+              country: userData.country || 'Ireland',
             });
           }
         } catch (err) {
@@ -57,6 +59,11 @@ const UserProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) return;
+
+    if (formData.country !== 'Ireland') {
+      setError('Sorry, we currently only deliver to Ireland');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -148,11 +155,21 @@ const UserProfile = () => {
         />
         <TextField
           fullWidth
-          label="Eircode"
+          label="Zip Code"
           value={formData.zipCode}
           onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
           margin="normal"
           required
+        />
+        <TextField
+          fullWidth
+          label="Country"
+          value={formData.country}
+          onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+          margin="normal"
+          required
+          disabled
+          helperText="We currently only deliver to Ireland"
         />
 
         <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>

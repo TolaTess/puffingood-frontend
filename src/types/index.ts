@@ -76,6 +76,7 @@ export interface User {
   city: string;
   state: string;
   zipCode: string;
+  country: string;
   isAdmin: boolean;
   isMarketing: boolean;
   createdAt: Date;

@@ -50,6 +50,7 @@ const Checkout = () => {
     zipCode: '',
     phone: '',
     instructions: '',
+    country: 'Ireland',
   });
   const [error, setError] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(0);
@@ -71,6 +72,7 @@ const Checkout = () => {
             state: userData.state || '',
             zipCode: userData.zipCode || '',
             phone: userData.phone || '',
+            country: userData.country || 'Ireland',
             instructions: '',
           });
         }
@@ -121,11 +123,16 @@ const Checkout = () => {
   };
 
   const validateDeliveryDetails = () => {
-    const requiredFields = ['name', 'address', 'city', 'state', 'zipCode', 'phone'];
+    const requiredFields = ['name', 'address', 'city', 'state', 'zipCode', 'phone', 'country'];
     const missingFields = requiredFields.filter(field => !deliveryDetails[field as keyof typeof deliveryDetails]);
     
     if (missingFields.length > 0) {
       setError('Please fill in all required fields');
+      return false;
+    }
+
+    if (deliveryDetails.country !== 'Ireland') {
+      setError('Sorry, we currently only deliver to Ireland');
       return false;
     }
 
@@ -262,6 +269,18 @@ const Checkout = () => {
           name="phone"
           value={deliveryDetails.phone}
           onChange={handleDeliveryDetailsChange}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          required
+          fullWidth
+          label="Country"
+          name="country"
+          value={deliveryDetails.country}
+          onChange={handleDeliveryDetailsChange}
+          disabled
+          helperText="We currently only deliver to Ireland"
         />
       </Grid>
       <Grid item xs={12}>

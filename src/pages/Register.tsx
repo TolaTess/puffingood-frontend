@@ -84,6 +84,7 @@ const Register = () => {
           city: '',
           state: '',
           zipCode: '',
+          country: 'Ireland',
           createdAt: new Date(),
           updatedAt: new Date(),
         }));
