@@ -245,7 +245,7 @@ const Checkout = () => {
         <TextField
           required
           fullWidth
-          label="Louth"
+          label="County"
           name="state"
           value={deliveryDetails.state}
           onChange={handleDeliveryDetailsChange}
