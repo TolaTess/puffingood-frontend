@@ -182,7 +182,8 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          addons: item.addons || []
+          addons: item.addons || [],
+          customization: item.customization || ''
         })),
         subtotal: subtotal,
         discount: discount,
@@ -317,6 +318,13 @@ const Checkout = () => {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Item Total: €{(item.price + item.addons.reduce((sum, addon) => sum + addon.price, 0)).toFixed(2)}
+              </Typography>
+            </Box>
+          )}
+          {item.customization && (
+            <Box sx={{ ml: 2, mt: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                Instructions: {item.customization}
               </Typography>
             </Box>
           )}

@@ -8,6 +8,7 @@ interface CartItem {
   quantity: number;
   image: string;
   addons: Addon[];
+  customization?: string;
 }
 
 interface CartState {
@@ -40,6 +41,12 @@ const cartSlice = createSlice({
         state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       }
     },
+    updateCustomization: (state, action: PayloadAction<{ id: string; customization: string }>) => {
+      const item = state.items.find(item => item.id === action.payload.id);
+      if (item) {
+        item.customization = action.payload.customization;
+      }
+    },
     removeItem: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(item => item.id !== action.payload);
       state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -51,5 +58,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addItem, updateQuantity, removeItem, clearCart } = cartSlice.actions;
+export const { addItem, updateQuantity, updateCustomization, removeItem, clearCart } = cartSlice.actions;
 export default cartSlice.reducer; 

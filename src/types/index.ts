@@ -48,6 +48,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   addons?: Addon[];
+  customization?: string;
 }
 
 // Admin Settings Types

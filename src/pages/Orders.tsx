@@ -306,6 +306,11 @@ const Orders = () => {
                               .join(', ')}
                           </Typography>
                         )}
+                        {item.customization && (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8em', fontStyle: 'italic' }}>
+                            Instructions: {item.customization}
+                          </Typography>
+                        )}
                       </Box>
                       <Typography variant="body1">
                         €{((item.price + (item.addons?.reduce((sum, addon) => 

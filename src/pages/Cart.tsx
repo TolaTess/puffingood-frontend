@@ -15,7 +15,7 @@ import {
 import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { removeItem, updateQuantity, clearCart } from '../store/slices/cartSlice';
+import { removeItem, updateQuantity, updateCustomization, clearCart } from '../store/slices/cartSlice';
 import { useState, useEffect } from 'react';
 import { firebaseService } from '../services/firebase';
 import { User } from '../types';
@@ -170,6 +170,10 @@ const Cart = () => {
   const discount = calculateDiscount(subtotal);
   const finalTotal = subtotal + deliveryFee - discount;
 
+  const handleCustomizationChange = (itemId: string, value: string) => {
+    dispatch(updateCustomization({ id: itemId, customization: value }));
+  };
+
   if (items.length === 0) {
     return (
       <Container maxWidth="md">
@@ -240,6 +244,17 @@ const Cart = () => {
                             </Typography>
                           </Box>
                         )}
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Instructions"
+                          placeholder="Add notes here"
+                          value={item.customization || ''}
+                          onChange={(e) => handleCustomizationChange(item.id, e.target.value)}
+                          multiline
+                          rows={2}
+                          sx={{ mt: 2, mb: 1 }}
+                        />
                       </Box>
                       <IconButton
                         size="small"

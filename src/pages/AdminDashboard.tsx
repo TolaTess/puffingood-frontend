@@ -411,6 +411,11 @@ const AdminDashboard = () => {
                                   .join(', ')}
                               </div>
                             )}
+                            {item.customization && (
+                              <div style={{ fontSize: '0.8em', color: '#666', fontStyle: 'italic' }}>
+                                Instructions: {item.customization}
+                              </div>
+                            )}
                             <div style={{ fontSize: '0.8em', color: '#666' }}>
                               €{((item.price + (item.addons?.reduce((sum, addon) => 
                                 sum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0)) * item.quantity).toFixed(2)}

@@ -8,79 +8,46 @@ import {
   Button,
   Grid,
   Card,
-  CardContent,
   CardMedia,
   CardActions,
-  CircularProgress,
-  Alert,
-  Paper,
 } from '@mui/material';
-import { useFoods, useAdminSettings } from '../hooks/useFirestore';
-import { Food } from '../types';
 
 // Import images
 import classicImg from '../assets/puff/classic.jpg';
 import premiumImg from '../assets/puff/premium.jpg';
 import halfHalfImg from '../assets/puff/half-half.jpg';
 
+// Static featured items
+const FEATURED_ITEMS = [
+  {
+    id: '1',
+    name: 'Classic Puff',
+    description: 'Our signature classic puff puff',
+    price: 5.99,
+    imagePath: classicImg,
+  },
+  {
+    id: '2',
+    name: 'Premium Puff',
+    description: 'Premium puff puff with special ingredients',
+    price: 7.99,
+    imagePath: premiumImg,
+  },
+  {
+    id: '3',
+    name: 'Half & Half',
+    description: 'Best of both worlds',
+    price: 6.99,
+    imagePath: halfHalfImg,
+  },
+];
+
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { foods, loading, error } = useFoods();
-  const { settings, loading: settingsLoading } = useAdminSettings();
-
-  // Get featured items (first 3 items from the menu)
-  const featuredItems = foods.slice(0, 3);
-
-  if (loading || settingsLoading) {
-    return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container>
-        <Alert severity="error" sx={{ mt: 2 }}>
-          Error loading featured items: {error}
-        </Alert>
-      </Container>
-    );
-  }
 
   return (
     <Box>
-      {/* Discount Banner */}
-      {settings?.isDiscount && (
-        <Paper
-          elevation={0}
-          sx={{
-            bgcolor: 'success.light',
-            color: 'white',
-            py: 1,
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-            🎉 Save {settings.discountPercentage}% with code:{' '}
-            <span style={{ 
-              backgroundColor: 'orange', 
-              color: 'secondary.main', 
-              padding: '2px 8px', 
-              borderRadius: 4,
-              fontFamily: 'monospace',
-              letterSpacing: '1px'
-            }}>
-              {settings.discountCode}
-            </span>
-          </Typography>
-        </Paper>
-      )}
-
       {/* Hero Section */}
       <Box
         sx={{
@@ -145,7 +112,7 @@ const Home = () => {
       </Box>
 
       {/* Featured Items */}
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ overflow: 'hidden' }}>
         <Typography
           component="h2"
           variant="h4"
@@ -153,42 +120,70 @@ const Home = () => {
           gutterBottom
           sx={{ mb: 4 }}
         >
-          Main Menu
+          Menu Options
         </Typography>
-        <Grid container spacing={4}>
-          {featuredItems.map((item) => (
-            <Grid item key={item.id} xs={12} md={4}>
-              <Card
-                sx={{
+        <Box
+          sx={{
+            display: 'flex',
+            width: 'max-content',
+            animation: 'scroll 20s linear infinite',
+            '@keyframes scroll': {
+              '0%': {
+                transform: 'translateX(0)',
+              },
+              '100%': {
+                transform: 'translateX(-50%)',
+              },
+            },
+          }}
+        >
+          {/* First set of images */}
+          {FEATURED_ITEMS.map((item) => (
+            <Box
+              key={item.id}
+              sx={{
+                width: 300,
+                height: 200,
+                mx: 2,
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+            >
+              <img
+                src={item.imagePath}
+                alt={item.name}
+                style={{
+                  width: '100%',
                   height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                  },
+                  objectFit: 'cover',
                 }}
-              >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={item.imagePath === 'classic' ? classicImg : item.imagePath === 'premium' ? premiumImg : halfHalfImg}
-                  alt={item.name}
-                />
-              
-                <CardActions>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={() => navigate('/menu')}
-                  >
-                    View Menu
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
+              />
+            </Box>
           ))}
-        </Grid>
+          {/* Duplicate set of images for seamless loop */}
+          {FEATURED_ITEMS.map((item) => (
+            <Box
+              key={`${item.id}-duplicate`}
+              sx={{
+                width: 300,
+                height: 200,
+                mx: 2,
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+            >
+              <img
+                src={item.imagePath}
+                alt={item.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+            </Box>
+          ))}
+        </Box>
       </Container>
     </Box>
   );

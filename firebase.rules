@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Public read access for menu items
+    match /foods/{foodId} {
+      allow read: if true;  // Allow public read access
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // Public read access for admin settings (for discounts, etc.)
+    match /settings/admin {
+      allow read: if true;  // Allow public read access
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // Restrict user data access
+    match /users/{userId} {
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Admin access to all documents
+    match /{document=**} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+  }
+} 
