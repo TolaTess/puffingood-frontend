@@ -478,32 +478,57 @@ class FirebaseService {
 
       const user = userDoc.data() as User;
 
+      // Validate required user data
+      if (!user.name || !user.phone || !user.email || !user.address || !user.city || !user.zipCode) {
+        throw new Error('Incomplete user profile. Please ensure all delivery details are filled in the user profile.');
+      }
+
+      // Prepare the request payload
+      const requestPayload = {
+        orderId: orderId,
+        customerName: user.name,
+        customerPhone: user.phone,
+        customerEmail: user.email,
+        deliveryAddress: user.address,
+        city: user.city,
+        zipCode: user.zipCode,
+        country: user.country || 'Ireland',
+        weight: 2.0, // Default weight for food orders
+        totalParcels: 1
+      };
+
+      console.log('Sending DPD label request:', requestPayload);
+      console.log('API URL:', `${import.meta.env.VITE_API_URL}/dpd/generate-label`);
+
       // Call backend to generate DPD label
       const response = await fetch(`${import.meta.env.VITE_API_URL}/dpd/generate-label`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          orderId: orderId,
-          customerName: user.name,
-          customerPhone: user.phone,
-          customerEmail: user.email,
-          deliveryAddress: user.address,
-          city: user.city,
-          zipCode: user.zipCode,
-          country: user.country,
-          weight: 2.0, // Default weight for food orders
-          totalParcels: 1
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate DPD label');
+        let errorMessage = 'Failed to generate DPD label';
+        try {
+          const errorData = await response.json();
+          console.error('Backend error response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          const errorText = await response.text();
+          console.error('Raw error response:', errorText);
+          errorMessage = `HTTP ${response.status}: ${errorText || response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
+      console.log('Success response:', result);
       
       if (result.success) {
         // Update order with DPD tracking information
