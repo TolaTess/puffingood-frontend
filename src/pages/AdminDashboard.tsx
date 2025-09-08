@@ -439,7 +439,7 @@ const AdminDashboard = () => {
                       <TableCell>
                         {order.status !== 'cancelled' && (
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
-                            {order.dpdTrackingNumber && order.isCompleted ? (
+                            {order.dpdTrackingNumber ? (
                               <Box>
                                 <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                                   DPD Tracking: {order.dpdTrackingNumber}
@@ -455,11 +455,12 @@ const AdminDashboard = () => {
                                     View Label
                                   </Button>
                                 )}
+                                {!order.isCompleted && (
+                                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 1 }}>
+                                    (Hidden from customer until order is completed)
+                                  </Typography>
+                                )}
                               </Box>
-                            ) : order.dpdTrackingNumber && !order.isCompleted ? (
-                              <Typography variant="body2" color="text.disabled">
-                                Label generated - tracking will show when order is completed
-                              </Typography>
                             ) : (
                               <Typography variant="body2" color="text.disabled">
                                 No DPD label generated
