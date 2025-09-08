@@ -31,23 +31,20 @@ export const useUserOrders = (isAdmin: boolean = false) => {
   const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user) return;
+    if (!user) return;
 
-      try {
-        setLoading(true);
-        const ordersData = isAdmin
-          ? await firebaseService.getAllOrders()
-          : await firebaseService.getUserOrders(user.id);
-        setOrders(ordersData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch orders');
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    const unsubscribe = isAdmin
+      ? firebaseService.subscribeToAllOrders((orders) => {
+          setOrders(orders);
+          setLoading(false);
+        })
+      : firebaseService.subscribeToUserOrders((orders) => {
+          setOrders(orders);
+          setLoading(false);
+        });
 
-    fetchOrders();
+    return () => unsubscribe();
   }, [user, isAdmin]);
 
   return { orders, loading, error };

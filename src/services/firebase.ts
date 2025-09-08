@@ -142,6 +142,26 @@ class FirebaseService {
     );
   }
 
+  subscribeToAllOrders(callback: (orders: Order[]) => void) {
+    const q = query(
+      collection(db, 'orders'),
+      orderBy('createdAt', 'desc')
+    );
+
+    return onSnapshot(q, 
+      (snapshot) => {
+        const orders = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Order));
+        callback(orders);
+      },
+      (error) => {
+        console.error('Error in all orders subscription:', error);
+      }
+    );
+  }
+
   // Admin Settings Methods
   async updateAdminSettings(settings: Partial<AdminSettings>) {
     try {

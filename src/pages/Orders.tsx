@@ -337,11 +337,6 @@ const Orders = () => {
                       DPD Tracking Number: {order.dpdTrackingNumber}
                     </Typography>
                   )}
-                  {order.trackingNumber && (
-                    <Typography variant="body2" color="primary">
-                      Manual Tracking Number: {order.trackingNumber}
-                    </Typography>
-                  )}
                   <Typography variant="body2" color="text.secondary">
                     Status: {order.status}
                   </Typography>

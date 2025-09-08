@@ -73,7 +73,6 @@ const AdminDashboard = () => {
     price: '',
     isAvailable: true
   });
-  const [trackingNumbers, setTrackingNumbers] = useState<Record<string, string>>({});
   const [generatingLabel, setGeneratingLabel] = useState<Record<string, boolean>>({});
 
   // Filter orders based on date range
@@ -194,36 +193,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleTrackingNumberChange = (orderId: string, value: string) => {
-    setTrackingNumbers(prev => ({
-      ...prev,
-      [orderId]: value
-    }));
-  };
-
-  const handleSaveTrackingNumber = async (orderId: string) => {
-    try {
-      if (trackingNumbers[orderId]) {
-        await firebaseService.updateOrderTrackingNumber(orderId, trackingNumbers[orderId]);
-        setError(''); // Clear any previous errors
-      }
-    } catch (err) {
-      setError('Failed to save tracking number. Please try again.');
-    }
-  };
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
-      if (newStatus === 'cancelled') {
-        // Just update status for cancelled orders
-        await firebaseService.updateOrderStatus(orderId, newStatus);
-      } else {
-        // For other status changes, include tracking number if it exists
-        await firebaseService.updateOrderStatus(orderId, newStatus);
-        if (trackingNumbers[orderId]) {
-          await firebaseService.updateOrderTrackingNumber(orderId, trackingNumbers[orderId]);
-        }
-      }
+      setError(''); // Clear any previous errors
+      await firebaseService.updateOrderStatus(orderId, newStatus);
+      
+      // The orders will be automatically updated via the useUserOrders hook subscription
+      // No need to manually update local state as Firestore will trigger a re-render
     } catch (err) {
       setError('Failed to update order status. Please try again.');
     }
@@ -477,33 +454,6 @@ const AdminDashboard = () => {
                               <Typography variant="body2" color="text.disabled">
                                 No DPD label generated
                               </Typography>
-                            )}
-                            
-                            {order.trackingNumber && (
-                              <Typography variant="body2" color="text.secondary">
-                                Manual Tracking: {order.trackingNumber}
-                              </Typography>
-                            )}
-                            
-                            {!order.trackingNumber && !order.dpdTrackingNumber && (
-                              <>
-                                <TextField
-                                  size="small"
-                                  label="Manual Tracking Number"
-                                  value={trackingNumbers[order.id!] || ''}
-                                  onChange={(e) => handleTrackingNumberChange(order.id!, e.target.value)}
-                                  placeholder="Enter tracking number (optional)"
-                                  helperText="Enter manual tracking number"
-                                />
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  onClick={() => handleSaveTrackingNumber(order.id!)}
-                                  disabled={!trackingNumbers[order.id!]}
-                                >
-                                  Save Manual Tracking
-                                </Button>
-                              </>
                             )}
                           </Box>
                         )}
