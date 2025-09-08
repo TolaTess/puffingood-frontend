@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/puffingood-frontend/',
+  base: '/',
   root: './',
   server: {
     port: 5173,
