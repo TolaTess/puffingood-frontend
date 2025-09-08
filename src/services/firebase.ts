@@ -489,12 +489,12 @@ class FirebaseService {
         customerName: user.name,
         customerPhone: user.phone,
         customerEmail: user.email,
-        deliveryAddress: user.address,
-        city: user.city,
-        zipCode: user.zipCode,
-        country: user.country || 'Ireland',
-        weight: 2.0, // Default weight for food orders
-        totalParcels: 1
+        deliveryAddress: {
+          addressLine1: user.address,
+          city: user.city,
+          county: user.state || user.city, // Use state if available, fallback to city
+          postcode: user.zipCode
+        }
       };
 
       console.log('Sending DPD label request:', requestPayload);
