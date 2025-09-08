@@ -332,7 +332,7 @@ const Orders = () => {
                   <Typography variant="body2" color="text.secondary">
                     Date: {formatDate(order.createdAt)}
                   </Typography>
-                  {order.dpdTrackingNumber && (
+                  {order.dpdTrackingNumber && order.isCompleted && (
                     <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
                       DPD Tracking Number: {order.dpdTrackingNumber}
                     </Typography>

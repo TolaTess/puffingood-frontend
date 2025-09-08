@@ -345,13 +345,20 @@ class FirebaseService {
   }
 
   // Update order status
-  async updateOrderStatus(orderId: string, status: Order['status']) {
+  async updateOrderStatus(orderId: string, status: Order['status'], isCompleted?: boolean) {
     try {
       const orderRef = doc(db, 'orders', orderId);
-      await updateDoc(orderRef, {
+      const updateData: any = {
         status,
         updatedAt: serverTimestamp(),
-      });
+      };
+      
+      // If isCompleted is provided, add it to the update
+      if (isCompleted !== undefined) {
+        updateData.isCompleted = isCompleted;
+      }
+      
+      await updateDoc(orderRef, updateData);
     } catch (error) {
       console.error('Error updating order status:', error);
       throw new Error(`Failed to update order status: ${error}`);

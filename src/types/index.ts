@@ -37,6 +37,7 @@ export interface Order {
   trackingNumber?: string;
   dpdTrackingNumber?: string;
   labelUrl?: string;
+  isCompleted?: boolean;
   city: string;
   deliveryFee: number;
   paymentIntentId?: string;

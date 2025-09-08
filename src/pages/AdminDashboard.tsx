@@ -197,7 +197,13 @@ const AdminDashboard = () => {
   const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
       setError(''); // Clear any previous errors
-      await firebaseService.updateOrderStatus(orderId, newStatus);
+      
+      // If marking as completed, also set isCompleted to true
+      if (newStatus === 'completed') {
+        await firebaseService.updateOrderStatus(orderId, newStatus, true);
+      } else {
+        await firebaseService.updateOrderStatus(orderId, newStatus);
+      }
       
       // The orders will be automatically updated via the useUserOrders hook subscription
       // No need to manually update local state as Firestore will trigger a re-render
@@ -433,7 +439,7 @@ const AdminDashboard = () => {
                       <TableCell>
                         {order.status !== 'cancelled' && (
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
-                            {order.dpdTrackingNumber ? (
+                            {order.dpdTrackingNumber && order.isCompleted ? (
                               <Box>
                                 <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
                                   DPD Tracking: {order.dpdTrackingNumber}
@@ -450,6 +456,10 @@ const AdminDashboard = () => {
                                   </Button>
                                 )}
                               </Box>
+                            ) : order.dpdTrackingNumber && !order.isCompleted ? (
+                              <Typography variant="body2" color="text.disabled">
+                                Label generated - tracking will show when order is completed
+                              </Typography>
                             ) : (
                               <Typography variant="body2" color="text.disabled">
                                 No DPD label generated
