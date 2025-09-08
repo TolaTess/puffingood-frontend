@@ -37,8 +37,6 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
@@ -76,6 +74,7 @@ const AdminDashboard = () => {
     isAvailable: true
   });
   const [trackingNumbers, setTrackingNumbers] = useState<Record<string, string>>({});
+  const [generatingLabel, setGeneratingLabel] = useState<Record<string, boolean>>({});
 
   // Filter orders based on date range
   const filteredOrders = useMemo(() => {
@@ -121,7 +120,7 @@ const AdminDashboard = () => {
     setLoading(false);
   }, [user, navigate]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
@@ -230,6 +229,24 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleGenerateDPDLabel = async (orderId: string) => {
+    try {
+      setGeneratingLabel(prev => ({ ...prev, [orderId]: true }));
+      setError(''); // Clear any previous errors
+      
+      const result = await firebaseService.generateDPDLabel(orderId);
+      
+      // Show success message
+      console.log('DPD Label generated successfully:', result);
+      
+    } catch (err) {
+      console.error('Error generating DPD label:', err);
+      setError(`Failed to generate DPD label: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setGeneratingLabel(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
       case 'pending':
@@ -259,6 +276,11 @@ const AdminDashboard = () => {
     const diffInMinutes = (now.getTime() - orderDate.getTime()) / (1000 * 60);
     
     return diffInMinutes > 10;
+  };
+
+  const canGenerateLabel = (order: Order) => {
+    // Can generate label if order is processing or completed and doesn't already have a DPD tracking number
+    return (order.status === 'processing' || order.status === 'completed') && !order.dpdTrackingNumber;
   };
 
   if (loading || foodsLoading || ordersLoading) {
@@ -434,19 +456,44 @@ const AdminDashboard = () => {
                       <TableCell>
                         {order.status !== 'cancelled' && (
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
-                            {order.trackingNumber ? (
-                              <Typography variant="body2" color="text.secondary">
-                                Tracking Number: {order.trackingNumber}
-                              </Typography>
+                            {order.dpdTrackingNumber ? (
+                              <Box>
+                                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold' }}>
+                                  DPD Tracking: {order.dpdTrackingNumber}
+                                </Typography>
+                                {order.labelUrl && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    href={order.labelUrl}
+                                    target="_blank"
+                                    sx={{ mt: 1 }}
+                                  >
+                                    View Label
+                                  </Button>
+                                )}
+                              </Box>
                             ) : (
+                              <Typography variant="body2" color="text.disabled">
+                                No DPD label generated
+                              </Typography>
+                            )}
+                            
+                            {order.trackingNumber && (
+                              <Typography variant="body2" color="text.secondary">
+                                Manual Tracking: {order.trackingNumber}
+                              </Typography>
+                            )}
+                            
+                            {!order.trackingNumber && !order.dpdTrackingNumber && (
                               <>
                                 <TextField
                                   size="small"
-                                  label="Tracking Number"
+                                  label="Manual Tracking Number"
                                   value={trackingNumbers[order.id!] || ''}
                                   onChange={(e) => handleTrackingNumberChange(order.id!, e.target.value)}
                                   placeholder="Enter tracking number (optional)"
-                                  helperText="Enter tracking number"
+                                  helperText="Enter manual tracking number"
                                 />
                                 <Button
                                   size="small"
@@ -454,7 +501,7 @@ const AdminDashboard = () => {
                                   onClick={() => handleSaveTrackingNumber(order.id!)}
                                   disabled={!trackingNumbers[order.id!]}
                                 >
-                                  Save Tracking Number
+                                  Save Manual Tracking
                                 </Button>
                               </>
                             )}
@@ -462,37 +509,54 @@ const AdminDashboard = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Tooltip 
-                          title={!canStartProcessing(order) ? "Can only start processing after 10-minute cancellation window" : ""}
-                          placement="top"
-                        >
-                          <span>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            <Tooltip 
+                              title={!canStartProcessing(order) ? "Can only start processing after 10-minute cancellation window" : ""}
+                              placement="top"
+                            >
+                              <span>
+                                <Button
+                                  size="small"
+                                  onClick={() => handleUpdateOrderStatus(order.id!, 'processing')}
+                                  disabled={!canStartProcessing(order)}
+                                >
+                                  Start Processing
+                                </Button>
+                              </span>
+                            </Tooltip>
+                            
+                            {canGenerateLabel(order) && (
+                              <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleGenerateDPDLabel(order.id!)}
+                                disabled={generatingLabel[order.id!]}
+                                startIcon={generatingLabel[order.id!] ? <CircularProgress size={16} /> : null}
+                              >
+                                {generatingLabel[order.id!] ? 'Generating...' : 'Generate Label'}
+                              </Button>
+                            )}
+                            
                             <Button
                               size="small"
-                              onClick={() => handleUpdateOrderStatus(order.id!, 'processing')}
-                              disabled={!canStartProcessing(order)}
-                              sx={{ mr: 1 }}
+                              onClick={() => handleUpdateOrderStatus(order.id!, 'completed')}
+                              disabled={order.status === 'completed' || order.status === 'cancelled'}
                             >
-                              Start Processing
+                              Mark Complete
                             </Button>
-                          </span>
-                        </Tooltip>
-                        <Button
-                          size="small"
-                          onClick={() => handleUpdateOrderStatus(order.id!, 'completed')}
-                          disabled={order.status === 'completed' || order.status === 'cancelled'}
-                          sx={{ mr: 1 }}
-                        >
-                          Mark Complete
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          onClick={() => handleUpdateOrderStatus(order.id!, 'cancelled')}
-                          disabled={order.status === 'completed' || order.status === 'cancelled'}
-                        >
-                          Cancel
-                        </Button>
+                            
+                            <Button
+                              size="small"
+                              color="error"
+                              onClick={() => handleUpdateOrderStatus(order.id!, 'cancelled')}
+                              disabled={order.status === 'completed' || order.status === 'cancelled'}
+                            >
+                              Cancel
+                            </Button>
+                          </Box>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))}

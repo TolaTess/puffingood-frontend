@@ -35,6 +35,8 @@ export interface Order {
   discountPercentage?: number | null;
   createdAt: Timestamp | Date;
   trackingNumber?: string;
+  dpdTrackingNumber?: string;
+  labelUrl?: string;
   city: string;
   deliveryFee: number;
   paymentIntentId?: string;

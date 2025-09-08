@@ -332,9 +332,14 @@ const Orders = () => {
                   <Typography variant="body2" color="text.secondary">
                     Date: {formatDate(order.createdAt)}
                   </Typography>
+                  {order.dpdTrackingNumber && (
+                    <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
+                      DPD Tracking Number: {order.dpdTrackingNumber}
+                    </Typography>
+                  )}
                   {order.trackingNumber && (
                     <Typography variant="body2" color="primary">
-                      Tracking Number: {order.trackingNumber}
+                      Manual Tracking Number: {order.trackingNumber}
                     </Typography>
                   )}
                   <Typography variant="body2" color="text.secondary">

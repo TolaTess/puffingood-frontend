@@ -11,7 +11,6 @@ import {
   orderBy,
   serverTimestamp,
   onSnapshot,
-  DocumentData,
   setDoc
 } from 'firebase/firestore';
 import { db, auth } from '../config/firebase';
@@ -434,6 +433,75 @@ class FirebaseService {
       });
     } catch (error) {
       console.error('Error refunding order:', error);
+      throw error;
+    }
+  }
+
+  async generateDPDLabel(orderId: string): Promise<{ trackingNumber: string; labelUrl: string }> {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      const orderDoc = await getDoc(orderRef);
+      
+      if (!orderDoc.exists()) {
+        throw new Error('Order not found');
+      }
+
+      const order = orderDoc.data() as Order;
+      
+      // Get user details for delivery address
+      const userRef = doc(db, 'users', order.userId);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error('User not found');
+      }
+
+      const user = userDoc.data() as User;
+
+      // Call backend to generate DPD label
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/dpd/generate-label`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: orderId,
+          customerName: user.name,
+          customerPhone: user.phone,
+          customerEmail: user.email,
+          deliveryAddress: user.address,
+          city: user.city,
+          zipCode: user.zipCode,
+          country: user.country,
+          weight: 2.0, // Default weight for food orders
+          totalParcels: 1
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate DPD label');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update order with DPD tracking information
+        await updateDoc(orderRef, {
+          dpdTrackingNumber: result.data.trackingNumber,
+          labelUrl: result.data.labelUrl,
+          updatedAt: serverTimestamp(),
+        });
+
+        return {
+          trackingNumber: result.data.trackingNumber,
+          labelUrl: result.data.labelUrl
+        };
+      } else {
+        throw new Error(result.message || 'Failed to generate DPD label');
+      }
+    } catch (error) {
+      console.error('Error generating DPD label:', error);
       throw error;
     }
   }
