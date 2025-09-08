@@ -97,6 +97,15 @@ const Orders = () => {
     }
   };
 
+  const getStatusDisplayText = (status: Order['status']) => {
+    switch (status) {
+      case 'completed':
+        return 'Order Sent';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
   const formatDate = (date: any) => {
     if (!date) return 'No date';
     // Handle Firestore Timestamp
@@ -261,7 +270,7 @@ const Orders = () => {
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Chip
-                      label={order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      label={getStatusDisplayText(order.status)}
                       color={getStatusColor(order.status)}
                       size="small"
                     />
@@ -338,7 +347,7 @@ const Orders = () => {
                     </Typography>
                   )}
                   <Typography variant="body2" color="text.secondary">
-                    Status: {order.status}
+                    Status: {getStatusDisplayText(order.status)}
                   </Typography>
                   {order.status === 'cancelled' && (
                     <Typography variant="body2" color="info.main" sx={{ mt: 1 }}>
