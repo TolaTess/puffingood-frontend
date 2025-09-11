@@ -68,6 +68,7 @@ export interface AdminSettings {
   outsideGalwayFee: number;
   galwayDeliveryTime: number;
   outsideGalwayDeliveryTime: number;
+  deliveryDay: string;
 }
 
 // User Types

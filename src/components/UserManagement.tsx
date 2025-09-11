@@ -49,6 +49,7 @@ const UserManagement = () => {
     outsideGalwayFee: 0,
     galwayDeliveryTime: 0,
     outsideGalwayDeliveryTime: 0,
+    deliveryDay: 'Wednesday',
   });
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -259,6 +260,35 @@ const UserManagement = () => {
                   />
                 </>
               )}
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Typography variant="h6" gutterBottom>General Settings</Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Delivery Day"
+                name="deliveryDay"
+                value={formData.deliveryDay || 'Wednesday'}
+                onChange={handleSettingsChange}
+                margin="normal"
+                helperText="Day of the week when orders are dispatched"
+                select
+                SelectProps={{
+                  native: true,
+                }}
+              >
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </TextField>
             </Grid>
           </Grid>
 

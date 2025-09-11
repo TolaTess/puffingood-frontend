@@ -285,15 +285,12 @@ const Checkout = () => {
         />
       </Grid>
       <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="Delivery Instructions (Optional)"
-          name="instructions"
-          multiline
-          rows={3}
-          value={deliveryDetails.instructions}
-          onChange={handleDeliveryDetailsChange}
-        />
+        <Typography variant="body2">
+            Delivery Information - We dispatch orders weekly on {settings?.deliveryDay || 'Wednesday'}.
+          </Typography>
+        <Typography variant="subtitle2">
+          We will try to accommodate your request, but we cannot guarantee it.
+        </Typography>
       </Grid>
     </Grid>
   );
