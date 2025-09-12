@@ -35,7 +35,7 @@ import { logout } from '../store/slices/authSlice';
 import CookieConsent from './CookieConsent';
 
 // Import images
-import logoImg from '../assets/logo/logo_black2.png';
+import logoImg from '../assets/logo/pufflogo.svg';
 
 const Layout = () => {
   const theme = useTheme();
