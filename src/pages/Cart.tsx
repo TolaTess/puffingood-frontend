@@ -166,7 +166,7 @@ const Cart = () => {
   // Calculate final total
   const subtotal = items.reduce((sum, item) => 
     sum + (item.price + (item.addons?.reduce((addonSum, addon) => 
-      sum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0)) * item.quantity, 0);
+      addonSum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0)) * item.quantity, 0);
   const discount = calculateDiscount(subtotal);
   const finalTotal = subtotal + deliveryFee - discount;
 
@@ -240,7 +240,7 @@ const Cart = () => {
                               Add-ons: {item.addons.map(addon => `${addon.name} (€${addon.price.toFixed(2)})`).join(', ')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Item Total: €{(item.price + item.addons.reduce((sum, addon) => sum + addon.price, 0)).toFixed(2)}
+                              Item Total: €{(item.price + item.addons.reduce((sum, addon) => sum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0)).toFixed(2)}
                             </Typography>
                           </Box>
                         )}

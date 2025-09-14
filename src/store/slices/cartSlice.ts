@@ -11,6 +11,17 @@ interface CartItem {
   customization?: string;
 }
 
+// Helper function to generate unique cart item ID based on item + addons
+const generateCartItemId = (itemId: string, addons: Addon[]): string => {
+  const addonIds = addons
+    .filter(addon => addon.isAvailable && addon.price > 0)
+    .map(addon => addon.name)
+    .sort()
+    .join(',');
+  
+  return addonIds ? `${itemId}-${addonIds}` : itemId;
+};
+
 interface CartState {
   items: CartItem[];
   total: number;
@@ -26,11 +37,19 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItem: (state, action: PayloadAction<CartItem>) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      // Generate unique ID based on item + addons
+      const uniqueId = generateCartItemId(action.payload.id, action.payload.addons);
+      const existingItem = state.items.find(item => item.id === uniqueId);
+      
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
       } else {
-        state.items.push(action.payload);
+        // Create new cart item with unique ID
+        const newItem = {
+          ...action.payload,
+          id: uniqueId,
+        };
+        state.items.push(newItem);
       }
       state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     },
