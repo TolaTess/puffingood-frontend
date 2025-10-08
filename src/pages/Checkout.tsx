@@ -15,6 +15,12 @@ import {
   Step,
   StepLabel,
   Alert,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Paper,
 } from '@mui/material';
 import { RootState } from '../store';
 import { clearCart } from '../store/slices/cartSlice';
@@ -23,7 +29,7 @@ import { User } from '../types';
 import StripePayment from '../components/StripePayment';
 import { useAdminSettings } from '../hooks/useFirestore';
 
-const steps = ['Delivery Details', 'Review Order', 'Payment'];
+const steps = ['Delivery Method', 'Delivery Details', 'Review Order', 'Payment'];
 
 interface LocationState {
   appliedDiscount: {
@@ -42,6 +48,7 @@ const Checkout = () => {
   const { user: authUser } = useSelector((state: RootState) => state.auth);
   const [user, setUser] = useState<User | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'collection'>('delivery');
   const [deliveryDetails, setDeliveryDetails] = useState({
     name: '',
     address: '',
@@ -87,10 +94,22 @@ const Checkout = () => {
 
   useEffect(() => {
     const calculateDeliveryFee = async () => {
+      if (deliveryMethod === 'collection') {
+        setDeliveryFee(0);
+        setError('');
+        return;
+      }
+      
       if (!deliveryDetails.city) return;
       
       try {
-        const fee = await firebaseService.getDeliveryFee(deliveryDetails.city);
+        const fee = await firebaseService.getDeliveryFee(deliveryDetails.city, deliveryDetails.address, deliveryDetails.state);
+        console.log('Delivery fee calculated:', {
+          city: deliveryDetails.city,
+          address: deliveryDetails.address,
+          county: deliveryDetails.state,
+          fee: fee
+        });
         setDeliveryFee(fee);
         if (fee === 0) {
           setError('Delivery is not available in this area. Please check your delivery address.');
@@ -104,7 +123,7 @@ const Checkout = () => {
     };
 
     calculateDeliveryFee();
-  }, [deliveryDetails.city]);
+  }, [deliveryDetails.city, deliveryDetails.address, deliveryDetails.state, deliveryMethod]);
 
   useEffect(() => {
     // Check if we're returning from a payment
@@ -123,6 +142,15 @@ const Checkout = () => {
   };
 
   const validateDeliveryDetails = () => {
+    if (deliveryMethod === 'collection') {
+      // For collection, only name and phone are required
+      if (!deliveryDetails.name || !deliveryDetails.phone) {
+        setError('Please provide your name and phone number for collection');
+        return false;
+      }
+      return true;
+    }
+
     const requiredFields = ['name', 'address', 'city', 'state', 'zipCode', 'phone', 'country'];
     const missingFields = requiredFields.filter(field => !deliveryDetails[field as keyof typeof deliveryDetails]);
     
@@ -145,9 +173,31 @@ const Checkout = () => {
   };
 
   const handleNext = () => {
-    if (activeStep === 0 && !validateDeliveryDetails()) {
+    if (activeStep === 1 && !validateDeliveryDetails()) {
       return;
     }
+    
+    // Recalculate delivery fee when moving to review step
+    if (activeStep === 1) {
+      const recalculateDeliveryFee = async () => {
+        if (deliveryMethod === 'delivery' && deliveryDetails.city) {
+          try {
+            const fee = await firebaseService.getDeliveryFee(deliveryDetails.city, deliveryDetails.address, deliveryDetails.state);
+            console.log('Delivery fee recalculated on review step:', {
+              city: deliveryDetails.city,
+              address: deliveryDetails.address,
+              county: deliveryDetails.state,
+              fee: fee
+            });
+            setDeliveryFee(fee);
+          } catch (err) {
+            console.error('Error recalculating delivery fee:', err);
+          }
+        }
+      };
+      recalculateDeliveryFee();
+    }
+    
     setActiveStep((prevStep) => prevStep + 1);
   };
 
@@ -164,7 +214,7 @@ const Checkout = () => {
 
   const subtotal = items.reduce((sum, item) => 
     sum + (item.price + (item.addons?.reduce((addonSum, addon) => 
-      sum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0)) * item.quantity, 0);
+      addonSum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0)) * item.quantity, 0);
   const discount = calculateDiscount(subtotal);
   const finalTotal = subtotal + deliveryFee - discount;
 
@@ -193,6 +243,7 @@ const Checkout = () => {
         totalAmount: finalTotal,
         city: deliveryDetails.city,
         deliveryFee: deliveryFee,
+        deliveryMethod: deliveryMethod,
         status: 'pending' as const,
         createdAt: new Date(),
         paymentIntentId: paymentIntentId
@@ -210,8 +261,59 @@ const Checkout = () => {
     setError(errorMessage);
   };
 
+  const renderDeliveryMethod = () => (
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        Choose Delivery Method
+      </Typography>
+      <FormControl component="fieldset">
+        <RadioGroup
+          value={deliveryMethod}
+          onChange={(e) => setDeliveryMethod(e.target.value as 'delivery' | 'collection')}
+        >
+          <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+            <FormControlLabel
+              value="delivery"
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="subtitle1">🚚 Home Delivery</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Nationwide delivery via DPD. Orders dispatched every Wednesday.
+                  </Typography>
+                </Box>
+              }
+            />
+          </Paper>
+          <Paper elevation={1} sx={{ p: 2 }}>
+            <FormControlLabel
+              value="collection"
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="subtitle1">🏪 Collection</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Collect from local Galway market. Contact us to arrange pickup time and location.
+                  </Typography>
+                  <Alert severity="info" sx={{ mt: 1 }}>
+                    Collection orders will not be processed through DPD.
+                  </Alert>
+                </Box>
+              }
+            />
+          </Paper>
+        </RadioGroup>
+      </FormControl>
+    </Box>
+  );
+
   const renderDeliveryDetails = () => (
     <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom>
+          {deliveryMethod === 'collection' ? 'Collection Details' : 'Delivery Details'}
+        </Typography>
+      </Grid>
       <Grid item xs={12}>
         <TextField
           required
@@ -219,46 +321,6 @@ const Checkout = () => {
           label="Full Name"
           name="name"
           value={deliveryDetails.name}
-          onChange={handleDeliveryDetailsChange}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          required
-          fullWidth
-          label="Delivery Address"
-          name="address"
-          value={deliveryDetails.address}
-          onChange={handleDeliveryDetailsChange}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          required
-          fullWidth
-          label="City"
-          name="city"
-          value={deliveryDetails.city}
-          onChange={handleDeliveryDetailsChange}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          required
-          fullWidth
-          label="County"
-          name="state"
-          value={deliveryDetails.state}
-          onChange={handleDeliveryDetailsChange}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          required
-          fullWidth
-          label="Eircode"
-          name="zipCode"
-          value={deliveryDetails.zipCode}
           onChange={handleDeliveryDetailsChange}
         />
       </Grid>
@@ -272,26 +334,133 @@ const Checkout = () => {
           onChange={handleDeliveryDetailsChange}
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      {deliveryMethod === 'delivery' && (
+        <>
+          <Grid item xs={12}>
+            <TextField
+              required
+              fullWidth
+              label="Delivery Address"
+              name="address"
+              value={deliveryDetails.address}
+              onChange={handleDeliveryDetailsChange}
+            />
+          </Grid>
+          
+          {/* Galway Areas Information - Only show if city or county contains "galway" */}
+          {(deliveryDetails.city.toLowerCase().includes('galway') || 
+            deliveryDetails.state.toLowerCase().includes('galway')) && (
+            <Grid item xs={12}>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  📍 Galway City Center Areas
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  The following areas (city) are considered Galway city center and qualify for reduced delivery fees:
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {[
+                    'Eyre Square', 'Claddagh', 'Salthill', 'Knocknacarra', 'Taylors Hill',
+                    'Newcastle', 'Rahoon', 'Shantalla', 'Bohermore', 'Headford Road',
+                    'Terryland', 'Mervue', 'Renmore', 'Wellpark', 'Ballybane',
+                    'Ballybrit', 'Doughiska', 'Roscam', 'Merlin Park'
+                  ].map((area) => (
+                    <Typography key={area} variant="caption" sx={{ 
+                      backgroundColor: 'primary.light', 
+                      color: 'primary.contrastText',
+                      px: 1, 
+                      py: 0.5, 
+                      borderRadius: 1,
+                      fontSize: '0.75rem'
+                    }}>
+                      {area}
+                    </Typography>
+                  ))}
+                </Box>
+                <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                  💡 You qualify for reduced Galway delivery fees!
+                </Typography>
+              </Alert>
+            </Grid>
+          )}
+          
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="City"
+              name="city"
+              value={deliveryDetails.city}
+              onChange={handleDeliveryDetailsChange}
+              helperText="Enter your city (e.g., Dundalk, Dublin, Cork)"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="County"
+              name="state"
+              value={deliveryDetails.state}
+              onChange={handleDeliveryDetailsChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Eircode"
+              name="zipCode"
+              value={deliveryDetails.zipCode}
+              onChange={handleDeliveryDetailsChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Country"
+              name="country"
+              value={deliveryDetails.country}
+              onChange={handleDeliveryDetailsChange}
+              disabled
+              helperText="We currently only deliver to Ireland"
+            />
+          </Grid>
+        </>
+      )}
+      {deliveryMethod === 'collection' && (
+        <Grid item xs={12}>
+          <Alert severity="info">
+            <Typography variant="body2">
+              For collection orders, we will contact you to arrange the pickup time and location. 
+              Please ensure your phone number is correct.
+            </Typography>
+          </Alert>
+        </Grid>
+      )}
+      <Grid item xs={12}>
         <TextField
-          required
           fullWidth
-          label="Country"
-          name="country"
-          value={deliveryDetails.country}
+          label={deliveryMethod === 'collection' ? 'Collection Instructions' : 'Delivery Instructions'}
+          name="instructions"
+          value={deliveryDetails.instructions}
           onChange={handleDeliveryDetailsChange}
-          disabled
-          helperText="We currently only deliver to Ireland"
+          multiline
+          rows={3}
+          placeholder={deliveryMethod === 'collection' ? 'Any special instructions for collection...' : 'Any special delivery instructions...'}
         />
       </Grid>
-      <Grid item xs={12}>
-        <Typography variant="body2">
+      {deliveryMethod === 'delivery' && (
+        <Grid item xs={12}>
+          <Typography variant="body2">
             Delivery Information - We dispatch orders weekly on {settings?.deliveryDay || 'Wednesday'}.
           </Typography>
-        <Typography variant="subtitle2">
-          We will try to accommodate your request, but we cannot guarantee it.
-        </Typography>
-      </Grid>
+          <Typography variant="subtitle2">
+            We will try to accommodate your request, but we cannot guarantee it.
+          </Typography>
+        </Grid>
+      )}
     </Grid>
   );
 
@@ -347,7 +516,9 @@ const Checkout = () => {
           </Box>
         )}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography>Delivery Fee</Typography>
+          <Typography>
+            {deliveryMethod === 'collection' ? 'Collection Fee' : 'Delivery Fee'}
+          </Typography>
           <Typography>€{deliveryFee.toFixed(2)}</Typography>
         </Box>
         <Divider sx={{ my: 1 }} />
@@ -396,9 +567,10 @@ const Checkout = () => {
 
       <Card>
         <CardContent>
-          {activeStep === 0 && renderDeliveryDetails()}
-          {activeStep === 1 && renderOrderReview()}
-          {activeStep === 2 && renderPayment()}
+          {activeStep === 0 && renderDeliveryMethod()}
+          {activeStep === 1 && renderDeliveryDetails()}
+          {activeStep === 2 && renderOrderReview()}
+          {activeStep === 3 && renderPayment()}
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
             {activeStep > 0 && (

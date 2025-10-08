@@ -276,14 +276,35 @@ class FirebaseService {
     }
   }
 
-  async getDeliveryFee(city: string): Promise<number> {
+  async getDeliveryFee(city: string, address?: string, county?: string): Promise<number> {
     try {
       const settingsDoc = await getDoc(doc(db, 'adminData', 'settings'));
       if (!settingsDoc.exists()) return 3.50; // Default fee
 
       const settings = settingsDoc.data() as AdminSettings;
       
-      if (city.toLowerCase().includes('galway') && settings.isGalway) {
+      // List of Galway city center areas
+      const galwayAreas = [
+        'eyre square', 'claddagh', 'salthill', 'knocknacarra', 'taylors hill',
+        'newcastle', 'rahoon', 'shantalla', 'bohermore', 'headford road',
+        'terryland', 'mervue', 'renmore', 'wellpark', 'ballybane',
+        'ballybrit', 'doughiska', 'roscam', 'merlin park'
+      ];
+      
+      // Check if county is Galway
+      const isGalwayCounty = county && county.toLowerCase().includes('galway');
+      
+      // Check if city or address contains any Galway city center area
+      const isGalwayArea = (city && galwayAreas.some(area => 
+        city.toLowerCase().includes(area)
+      )) || (address && galwayAreas.some(area => 
+        address.toLowerCase().includes(area)
+      ));
+      
+      // Galway delivery fee only applies if:
+      // 1. County is Galway AND
+      // 2. City or address contains one of the specific Galway city center areas
+      if (isGalwayCounty && isGalwayArea && settings.isGalway) {
         return settings.galwayFee;
       } else if (settings.isOutsideGalway) {
         return settings.outsideGalwayFee;

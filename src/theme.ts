@@ -3,14 +3,24 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#6FCFCD',
+      main: '#5ce1e6', // Turquoise color
+      light: '#FFD4C4',
+      dark: '#E89B7B',
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#4ECDC4',
+      main: '#FFB4A2', // Peach color
+      light: '#7EDDD6',
+      dark: '#2BA69A',
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F7F7F7',
+      default: '#FFF8F5', // Light peach background
       paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFB4A2', // Turquoise text
+      secondary: '#666666',
     },
   },
   typography: {

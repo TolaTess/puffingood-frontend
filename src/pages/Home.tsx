@@ -10,6 +10,10 @@ import {
   Card,
   CardMedia,
   CardActions,
+  CardContent,
+  Paper,
+  Chip,
+  Stack,
 } from '@mui/material';
 
 // Import images
@@ -51,10 +55,12 @@ const Home = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: 'primary.main',
+          background: 'linear-gradient(135deg, #FFB4A2 0%, #FFD4C4 100%)',
           color: 'white',
-          py: 8,
+          py: 10,
           mb: 6,
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <Container maxWidth="md">
@@ -110,9 +116,8 @@ const Home = () => {
           </Box>
         </Container>
       </Box>
-
-      {/* Featured Items */}
-      <Container maxWidth="lg" sx={{ overflow: 'hidden' }}>
+     {/* Featured Items */}
+     <Container maxWidth="lg" sx={{ overflow: 'hidden' }}>
         <Typography
           component="h2"
           variant="h4"
@@ -120,7 +125,7 @@ const Home = () => {
           gutterBottom
           sx={{ mb: 4 }}
         >
-          Menu Options
+          PuffingGood Gallery
         </Typography>
         <Box
           sx={{
@@ -185,6 +190,123 @@ const Home = () => {
           ))}
         </Box>
       </Container>
+
+
+      {/* Features Section */}
+      <Box
+        sx={{
+          bgcolor: 'background.default',
+          py: 8,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            component="h2"
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ 
+              mb: 6,
+              color: 'text.primary',
+              fontWeight: 'bold'
+            }}
+          >
+            Why Choose PuffinGood?
+          </Typography>
+          
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  textAlign: 'center',
+                  bgcolor: 'white',
+                  borderRadius: 3,
+                  height: '100%',
+                }}
+              >
+                <Typography
+                  variant="h3"
+                  sx={{ mb: 2, color: 'secondary.main' }}
+                >
+                  🚚
+                </Typography>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: 'bold', color: 'text.primary' }}
+                >
+                  Fresh Delivery
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Delivered fresh every Wednesday via DPD. Made to order for the best quality.
+                </Typography>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  textAlign: 'center',
+                  bgcolor: 'white',
+                  borderRadius: 3,
+                  height: '100%',
+                }}
+              >
+                <Typography
+                  variant="h3"
+                  sx={{ mb: 2, color: 'secondary.main' }}
+                >
+                  🌱
+                </Typography>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: 'bold', color: 'text.primary' }}
+                >
+                  Traditional Recipe
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Authentic West African puff puff recipe passed down through generations.
+                </Typography>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  textAlign: 'center',
+                  bgcolor: 'white',
+                  borderRadius: 3,
+                  height: '100%',
+                }}
+              >
+                <Typography
+                  variant="h3"
+                  sx={{ mb: 2, color: 'secondary.main' }}
+                >
+                  🏪
+                </Typography>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: 'bold', color: 'text.primary' }}
+                >
+                  Local Collection
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Available for collection at the local Galway market. Contact us to arrange pickup.
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
     </Box>
   );
 };

@@ -73,7 +73,7 @@ const Cart = () => {
       }
       
       try {
-        const fee = await firebaseService.getDeliveryFee(user.city);
+        const fee = await firebaseService.getDeliveryFee(user.city, user.address);
         setDeliveryFee(fee);
         if (fee === 0) {
           setDeliveryError('Delivery is not available in your area. Please check your delivery address.');

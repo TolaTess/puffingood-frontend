@@ -16,6 +16,10 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme';
+import DeliveryInfo from './pages/DeliveryInfo';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import Policies from './pages/Policies';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +36,10 @@ const router = createBrowserRouter([
       { path: 'profile', element: <UserProfile /> },
       { path: 'terms', element: <TermsAndConditions /> },
       { path: 'privacy-policy', element: <PrivacyPolicy /> },
+      { path: 'delivery-info', element: <DeliveryInfo /> },
+      { path: 'faq', element: <FAQ /> },
+      { path: 'contact', element: <Contact /> },
+      { path: 'policies', element: <Policies /> },
     ],
   },
   {

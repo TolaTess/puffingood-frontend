@@ -13,8 +13,8 @@ interface CartItem {
 
 // Helper function to generate unique cart item ID based on item + addons
 const generateCartItemId = (itemId: string, addons: Addon[]): string => {
+  // Use all addons that are passed (they should already be filtered by FoodMenu)
   const addonIds = addons
-    .filter(addon => addon.isAvailable && addon.price > 0)
     .map(addon => addon.name)
     .sort()
     .join(',');
@@ -51,13 +51,21 @@ const cartSlice = createSlice({
         };
         state.items.push(newItem);
       }
-      state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      state.total = state.items.reduce((sum, item) => {
+        const addonTotal = item.addons?.reduce((addonSum, addon) => 
+          addonSum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0;
+        return sum + (item.price + addonTotal) * item.quantity;
+      }, 0);
     },
     updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
       const item = state.items.find(item => item.id === action.payload.id);
       if (item) {
         item.quantity = action.payload.quantity;
-        state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        state.total = state.items.reduce((sum, item) => {
+        const addonTotal = item.addons?.reduce((addonSum, addon) => 
+          addonSum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0;
+        return sum + (item.price + addonTotal) * item.quantity;
+      }, 0);
       }
     },
     updateCustomization: (state, action: PayloadAction<{ id: string; customization: string }>) => {
@@ -68,7 +76,11 @@ const cartSlice = createSlice({
     },
     removeItem: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(item => item.id !== action.payload);
-      state.total = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      state.total = state.items.reduce((sum, item) => {
+        const addonTotal = item.addons?.reduce((addonSum, addon) => 
+          addonSum + (addon.isAvailable && addon.price > 0 ? addon.price : 0), 0) || 0;
+        return sum + (item.price + addonTotal) * item.quantity;
+      }, 0);
     },
     clearCart: (state) => {
       state.items = [];

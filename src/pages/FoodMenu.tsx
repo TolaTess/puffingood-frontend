@@ -17,8 +17,17 @@ import {
   Stack,
   CircularProgress,
   Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
-import { Search as SearchIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Add as AddIcon, Remove as RemoveIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { addItem } from '../store/slices/cartSlice';
 import { useFoods, useAdminSettings } from '../hooks/useFirestore';
@@ -114,8 +123,83 @@ const FoodMenu = () => {
     <Container maxWidth="lg">
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Our Menu
+        Our Menu
         </Typography>
+
+        {/* Allergen Information Section */}
+        <Accordion sx={{ mb: 3 }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Allergen Information</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Allergen Information
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                Please check the allergen information below before ordering. If you have any allergies or dietary requirements, please contact us before placing your order.
+              </Typography>
+            </Box>
+
+            <TableContainer component={Paper} sx={{ mb: 3 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Item</strong></TableCell>
+                    <TableCell><strong>Allergens</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Plain {`{V}`}</TableCell>
+                    <TableCell>WH</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Sugar {`{V}`}</TableCell>
+                    <TableCell>WH</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Cinnamon Sugar {`{V}`}</TableCell>
+                    <TableCell>WH</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Biscoff {`{V}`}</TableCell>
+                    <TableCell>WH, SY</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Oreos</TableCell>
+                    <TableCell>WH, SY, MK</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Kinder Bueno</TableCell>
+                    <TableCell>WH, MK, NUTS</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Pistachio</TableCell>
+                    <TableCell>WH, MK, SY, PIS</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Nutella</TableCell>
+                    <TableCell>WH, MK, SY, NUTS</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Box sx={{ p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                <strong>ALLERGEN INFORMATION CONTAINS:</strong>
+              </Typography>
+              <Typography variant="body2">
+                <strong>WH</strong> = Wheat<br/>
+                <strong>SY</strong> = Soya<br/>
+                <strong>MK</strong> = Milk<br/>
+                <strong>NUTS</strong> = Hazelnuts<br/>
+                <strong>PIS</strong> = Pistachio nuts
+              </Typography>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
 
         {settings?.isDiscount && (
           <Paper 

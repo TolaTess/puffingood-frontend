@@ -28,6 +28,12 @@ import {
   Restaurant,
   ExitToApp,
   Dashboard,
+  Home,
+  Help,
+  Phone,
+  FoodBank,
+  Book,
+  DeliveryDining,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
@@ -88,9 +94,39 @@ const Layout = () => {
       <List>
         <ListItem button component={RouterLink} to="/">
           <ListItemIcon>
-            <Restaurant />
+            <Home />
+          </ListItemIcon>
+          <ListItemText primary="Home" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/menu">
+          <ListItemIcon>
+            <FoodBank />
           </ListItemIcon>
           <ListItemText primary="Menu" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/delivery-info">
+          <ListItemIcon>
+            <DeliveryDining />
+          </ListItemIcon>
+          <ListItemText primary="Delivery & Pickup" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/faq">
+          <ListItemIcon>
+              <Help />
+          </ListItemIcon>
+          <ListItemText primary="FAQs" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/contact">
+          <ListItemIcon>
+            <Phone />
+          </ListItemIcon>
+          <ListItemText primary="Contact" />
+        </ListItem>
+        <ListItem button component={RouterLink} to="/policies">
+          <ListItemIcon>
+              <Book />
+          </ListItemIcon>
+          <ListItemText primary="Policies" />
         </ListItem>
         <ListItem button component={RouterLink} to="/cart">
           <ListItemIcon>
@@ -180,6 +216,34 @@ const Layout = () => {
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 Menu
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/delivery-info"
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Delivery & Pickup
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/faq"
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                FAQs
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/contact"
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Contact
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/policies"
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Policies
               </Button>
               <Button
                 component={RouterLink}
@@ -296,12 +360,20 @@ const Layout = () => {
             {'. All rights reserved.'}
           </Typography>
           <Typography variant="body2" color="text.secondary" align="center">
-            <RouterLink to="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>
-              Terms and Conditions
+            <RouterLink to="/delivery-info" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Delivery Info
             </RouterLink>
             {' | '}
-            <RouterLink to="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>
-              Privacy Policy
+            <RouterLink to="/faq" style={{ color: 'inherit', textDecoration: 'none' }}>
+              FAQ
+            </RouterLink>
+            {' | '}
+            <RouterLink to="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Contact
+            </RouterLink>
+            {' | '}
+            <RouterLink to="/policies" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Policies
             </RouterLink>
           </Typography>
         </Container>
