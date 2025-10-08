@@ -287,7 +287,7 @@ const FoodMenu = () => {
                             key={addon.name}
                             label={`${addon.name} (€${addon.price.toFixed(2)})`}
                             size="small"
-                            color={selectedAddOns[item.id!]?.includes(addon.name) ? "primary" : "default"}
+                            color={selectedAddOns[item.id!]?.includes(addon.name) ? "primary" : "secondary"}
                             onClick={() => toggleAddOn(item.id!, addon.name)}
                             sx={{ mb: 1 }}
                           />
