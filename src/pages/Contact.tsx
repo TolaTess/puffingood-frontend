@@ -55,7 +55,7 @@ const Contact = () => {
       const body = encodeURIComponent(
         `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
       );
-      const mailtoLink = `mailto:puffingood@gmail.com?subject=${subject}&body=${body}`;
+      const mailtoLink = `mailto:puffinggood@gmail.com?subject=${subject}&body=${body}`;
       
       // Open email client
       window.open(mailtoLink);
@@ -134,7 +134,7 @@ const Contact = () => {
                 
                 {submitStatus === 'error' && (
                   <Alert severity="error" sx={{ mt: 2 }}>
-                    There was an error. Please try again or email us directly at puffingood@gmail.com
+                    There was an error. Please try again or email us directly at puffinggood@gmail.com
                   </Alert>
                 )}
 
@@ -168,8 +168,8 @@ const Contact = () => {
                   <ListItemText
                     primary="Email"
                     secondary={
-                      <Link href="mailto:puffingood@gmail.com" color="primary">
-                        puffingood@gmail.com
+                      <Link href="mailto:puffinggood@gmail.com" color="primary">
+                        puffinggood@gmail.com
                       </Link>
                     }
                   />
@@ -267,8 +267,8 @@ const Contact = () => {
           </Typography>
           <Typography variant="body1" align="center" color="text.secondary">
             If you prefer to contact us directly, you can email us at{' '}
-            <Link href="mailto:puffingood@gmail.com" color="primary">
-              puffingood@gmail.com
+            <Link href="mailto:puffinggood@gmail.com" color="primary">
+              puffinggood@gmail.com
             </Link>
             {' '}or reach out to us on any of our social media platforms.
           </Typography>

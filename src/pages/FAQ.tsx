@@ -7,8 +7,10 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Button,
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 
 const FAQ = () => {
   const faqs = [
@@ -18,7 +20,7 @@ const FAQ = () => {
     },
     {
       question: "Are your PuffPuffs vegan?",
-      answer: "Yes, our PuffPuffs are naturally vegan. However, please note that some toppings are not vegan-friendly. To help you identify suitable options, we've labeled vegan toppings with 'VG'."
+      answer: "Yes, our PuffPuffs are naturally vegan. However, please note that some toppings are not vegan-friendly. To help you identify suitable options, we've labeled vegan toppings with 'V'."
     },
     {
       question: "Do you offer gluten-free PuffPuff?",
@@ -92,9 +94,24 @@ const FAQ = () => {
           <Typography variant="h6" gutterBottom align="center">
             Still have questions?
           </Typography>
-          <Typography variant="body1" align="center" color="text.secondary">
+          <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 3 }}>
             Don't hesitate to reach out to us through our contact page or send us a direct message on social media.
           </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Button
+              component={RouterLink}
+              to="/contact"
+              variant="contained"
+              size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+              }}
+            >
+              Contact Us
+            </Button>
+          </Box>
         </CardContent>
       </Card>
     </Container>

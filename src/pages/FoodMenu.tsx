@@ -132,10 +132,7 @@ const FoodMenu = () => {
             <Typography variant="h6">Allergen Information</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Allergen Information
-              </Typography>
+            <Box sx={{ mb: 3 }}>      
               <Typography variant="body2" color="text.secondary" paragraph>
                 Please check the allergen information below before ordering. If you have any allergies or dietary requirements, please contact us before placing your order.
               </Typography>
@@ -192,10 +189,12 @@ const FoodMenu = () => {
               </Typography>
               <Typography variant="body2">
                 <strong>WH</strong> = Wheat<br/>
+                <strong>GL</strong> = Gluten<br/>
                 <strong>SY</strong> = Soya<br/>
                 <strong>MK</strong> = Milk<br/>
                 <strong>NUTS</strong> = Hazelnuts<br/>
-                <strong>PIS</strong> = Pistachio nuts
+                <strong>PIS</strong> = Pistachio nuts<br/>
+                <strong>V</strong> = Vegan<br/>
               </Typography>
             </Box>
           </AccordionDetails>

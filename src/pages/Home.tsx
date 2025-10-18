@@ -55,7 +55,7 @@ const Home = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #FFB4A2 0%, #FFD4C4 100%)',
+          background: 'linear-gradient(135deg, #40E0D0 0%, #7EE8E0 100%)',
           color: 'white',
           py: 10,
           mb: 6,
@@ -74,12 +74,12 @@ const Home = () => {
             Welcome to PuffinGood
           </Typography>
           <Typography
-            variant="h5"
+            variant="h6"
             align="center"
             paragraph
             sx={{ mb: 4 }}
           >
-            Delicious puff puffs delivered to your doorstep
+           Experience the joy of freshly made Puff Puffs - order now and get them delivered straight to your door!
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
             <Button
@@ -90,7 +90,7 @@ const Home = () => {
                 bgcolor: 'white',
                 color: 'primary.main',
                 '&:hover': {
-                  bgcolor: 'grey.100',
+                  bgcolor: 'grey.200',
                 },
               }}
             >
@@ -125,7 +125,7 @@ const Home = () => {
           gutterBottom
           sx={{ mb: 4 }}
         >
-          PuffingGood Gallery
+          PuffinGood Gallery
         </Typography>
         <Box
           sx={{
