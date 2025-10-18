@@ -69,7 +69,7 @@ const Home = () => {
             variant="h2"
             align="center"
             gutterBottom
-            sx={{ fontWeight: 'bold' }}
+            sx={{ fontWeight: 'bold', color: 'white' }}
           >
             Welcome to PuffinGood
           </Typography>
@@ -77,7 +77,7 @@ const Home = () => {
             variant="h6"
             align="center"
             paragraph
-            sx={{ mb: 4 }}
+            sx={{ mb: 4, color: 'white' }}
           >
            Experience the joy of freshly made Puff Puffs - order now and get them delivered straight to your door!
           </Typography>
